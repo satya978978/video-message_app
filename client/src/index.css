@@ -1,0 +1,172 @@
+/* index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-black text-white;
+    line-height: 1.5;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 rounded-2xl;
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    @apply bg-gray-900/30 border border-gray-800/30;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-800 hover:bg-gray-700 text-gray-200 font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 border border-gray-700/50;
+  }
+  
+  .btn-ghost {
+    @apply text-gray-400 hover:text-white hover:bg-gray-800/50 font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+  
+  .input-field {
+    @apply bg-gray-900/50 border border-gray-700/50 text-white placeholder-gray-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200;
+  }
+  
+  .interview-card {
+    @apply glass-panel p-5 hover:bg-gray-800/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/10 cursor-pointer;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent;
+  }
+  
+  .floating-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .pulse-glow {
+    @apply animate-pulse shadow-lg shadow-blue-500/20;
+  }
+
+  .control-button {
+    @apply flex flex-col items-center space-y-2 px-6 py-4 rounded-xl transition-all duration-200 hover:scale-105 text-gray-400 hover:text-white hover:bg-gray-800/50;
+  }
+
+  .control-button.active {
+    @apply bg-blue-600 text-white shadow-lg shadow-blue-500/25;
+  }
+
+  .panel-container {
+    @apply glass-panel overflow-hidden;
+  }
+
+  .chat-message.sent {
+    @apply ml-auto;
+  }
+
+  .chat-message.received {
+    @apply mr-auto;
+  }
+
+  .video-container {
+    @apply glass-panel rounded-2xl overflow-hidden relative;
+  }
+
+  .video-container video {
+    @apply w-full h-full object-cover;
+  }
+
+  .video-controls {
+    @apply absolute bottom-4 left-4 flex space-x-2;
+  }
+
+  .video-control-btn {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 bg-black/50 backdrop-blur-sm border border-gray-700/50 text-white hover:bg-gray-800/50;
+  }
+
+  .video-control-btn.active {
+    @apply bg-red-500 hover:bg-red-400 shadow-lg shadow-red-500/25;
+  }
+
+  .video-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent;
+  }
+
+  .video-label {
+    @apply absolute top-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-sm rounded-lg border border-gray-700/50 text-white text-sm font-medium;
+  }
+
+  .video-status-indicator {
+    @apply w-8 h-8 backdrop-blur-sm rounded-lg border flex items-center justify-center;
+  }
+
+  .video-status-indicator.muted {
+    @apply bg-red-500/20 border-red-500/30 text-red-400;
+  }
+
+  .video-status-indicator.active {
+    @apply bg-green-500/20 border-green-500/30 text-green-400;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.8);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.9);
+}
+
+/* Enhanced focus states */
+.input-field:focus {
+  @apply ring-2 ring-blue-500/50 border-blue-500/50 shadow-lg shadow-blue-500/10;
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, textarea, select {
+  @apply transition-all duration-200;
+}
