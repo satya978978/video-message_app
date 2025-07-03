@@ -1,46 +1,30 @@
+
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import axios from './axios';
+import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [emailFocused, setEmailFocused] = useState(false);
-  const [passwordFocused, setPasswordFocused] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
+import { Link } from 'react-router-dom';
 
-  const handleSubmit = async (e) => {
+export default function LoginUI() {
+  const navigate = useNavigate()
+  const [password, setpassword] = useState("")
+  const [email, setemail] = useState("")
+  const submit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const result = await login(email, password);
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setError(result.error || 'Login failed');
-      }
-    } catch (err) {
-      setError('An error occurred during login');
-    } finally {
-      setLoading(false);
+    const res = await axios.post('/api/login', { password, email })
+    if (res.data.message == "ok") {
+      console.log("logged in ")
+      navigate('/dashboard')
     }
-  };
-
+  }
   return (
     <div className="min-h-screen flex bg-black text-white">
       {/* Floating Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl floating-animation"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-800/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
-                <div className="absolute -bottom-40 left-10 w-80 h-80 bg-blue-800/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
-
+        <div className="absolute -bottom-40 left-10 w-80 h-80 bg-blue-800/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
       </div>
 
       {/* Left Side - Form */}
@@ -53,13 +37,10 @@ export default function Login() {
             <p className="text-gray-400">Sign in to your account</p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-600 text-white px-4 py-3 rounded-md">
-                {error}
-              </div>
-            )}
-
+          <form
+          onSubmit={submit}
+              type="submit"
+          className="space-y-6">
             <div className="space-y-5">
               {/* Email Input */}
               <div className="space-y-2">
@@ -67,32 +48,17 @@ export default function Login() {
                   Email address
                 </label>
                 <div className="relative group">
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-sm transition-opacity duration-300 ${
-                      emailFocused ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-sm opacity-0"></div>
                   <div className="relative">
-                    <Mail
-                      className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
-                        emailFocused ? 'text-blue-400' : 'text-gray-500'
-                      }`}
-                    />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
+                      onChange={(e) => { setemail(e.target.value) }}
+                      value={email}
                       id="email"
                       name="email"
                       type="email"
-                      required
-                      className={`w-full pl-12 pr-4 py-4 rounded-xl bg-gray-800 text-white border transition-all duration-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
-                        emailFocused
-                          ? 'border-blue-500/50 bg-gray-900/70'
-                          : 'border-gray-700/50 hover:border-gray-600/50'
-                      }`}
+                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-800 text-white border border-gray-700/50 hover:border-gray-600/50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                       placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      onFocus={() => setEmailFocused(true)}
-                      onBlur={() => setEmailFocused(false)}
                     />
                   </div>
                 </div>
@@ -104,39 +70,23 @@ export default function Login() {
                   Password
                 </label>
                 <div className="relative group">
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-sm transition-opacity duration-300 ${
-                      passwordFocused ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-xl blur-sm opacity-0"></div>
                   <div className="relative">
-                    <Lock
-                      className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
-                        passwordFocused ? 'text-blue-400' : 'text-gray-500'
-                      }`}
-                    />
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
                     <input
+                      onChange={(e) => { setpassword(e.target.value) }}
+                      value={password}
                       id="password"
                       name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      className={`w-full pl-12 pr-12 py-4 rounded-xl bg-gray-800 text-white border transition-all duration-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
-                        passwordFocused
-                          ? 'border-blue-500/50 bg-gray-900/70'
-                          : 'border-gray-700/50 hover:border-gray-600/50'
-                      }`}
+                      type="password"
+                      className="w-full pl-12 pr-12 py-4 rounded-xl bg-gray-800 text-white border border-gray-700/50 hover:border-gray-600/50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                       placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onFocus={() => setPasswordFocused(true)}
-                      onBlur={() => setPasswordFocused(false)}
                     />
                     <button
                       type="button"
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors duration-200"
-                      onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      <Eye className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -144,22 +94,13 @@ export default function Login() {
             </div>
 
             {/* Sign In Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98]"
+            <button 
+              className="group relative w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl font-semibold text-white transition-all duration-200 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98]"
             >
               <div className="flex items-center justify-center space-x-2">
-                <span>{loading ? 'Signing in...' : 'Sign in'}</span>
-                {!loading && (
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
-                )}
+                <span>Sign in</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
               </div>
-              {loading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                </div>
-              )}
             </button>
 
             {/* Sign Up Link */}

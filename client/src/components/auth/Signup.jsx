@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import axios from './axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
   const [email, setemail] = useState('');
@@ -13,7 +14,7 @@ export default function Signup() {
   const [usernameFocused, setUsernameFocused] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+ const navigate= useNavigate()
   const signup = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -22,6 +23,7 @@ export default function Signup() {
       const res = await axios.post('/api/signup', { email, password, username });
       if (res.data.message === 'ok') {
         console.log('Signup successful');
+        navigate('/dashboard')
        
       }
     } catch (err) {

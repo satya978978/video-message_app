@@ -1,43 +1,29 @@
 import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Video, VideoOff, Phone, PhoneOff, Users, Settings } from 'lucide-react';
 
-export default function VideoArea({ participants = [] }) {
+export default function VideoArea({myvid,remotvideo}) {
   const [localStream, setLocalStream] = useState(null);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+ 
 
   useEffect(() => {
-    initializeLocalStream();
-    return () => {
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-    };
+
+  
+
+
+
+
+
   }, []);
 
-  const initializeLocalStream = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
-      setLocalStream(stream);
-      setIsConnected(true);
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-    } catch (error) {
-      console.error('Error accessing media devices:', error);
-      setIsConnected(false);
-    }
-  };
+  
+
 
   const toggleVideo = () => {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
+    if (myvid) {
+      const videoTrack = myvid.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
         setIsVideoEnabled(videoTrack.enabled);
@@ -46,8 +32,8 @@ export default function VideoArea({ participants = [] }) {
   };
 
   const toggleAudio = () => {
-    if (localStream) {
-      const audioTrack = localStream.getAudioTracks()[0];
+    if (myvid) {
+      const audioTrack = myvid.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
         setIsAudioEnabled(audioTrack.enabled);
@@ -56,17 +42,15 @@ export default function VideoArea({ participants = [] }) {
   };
 
   const endCall = () => {
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
+    if (myvid) {
+      myvid.getTracks().forEach(track => track.stop());
       setLocalStream(null);
       setIsConnected(false);
     }
   };
 
-  const hasRemoteParticipant = participants.length > 1;
-
   return (
-    <div className="h-full bg-black  text-white relative overflow-hidden">
+    <div className="h-full bg-black text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl floating-animation"></div>
@@ -74,7 +58,7 @@ export default function VideoArea({ participants = [] }) {
       </div>
 
       {/* Header */}
-      <div className="relative  z-10 p-6 border-b border-gray-800/50 glass-panel border-0 border-b border-gray-800/50">
+      <div className="relative z-10 p-6 border-b border-gray-800/50 glass-panel border-0 border-b border-gray-800/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
@@ -94,7 +78,7 @@ export default function VideoArea({ participants = [] }) {
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2 px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">{participants.length || 1} participant{participants.length !== 1 ? 's' : ''}</span>
+              <span className="text-sm text-gray-300">1 participant</span>
             </div>
             <button className="btn-secondary flex items-center space-x-2 text-sm">
               <Settings className="w-4 h-4" />
@@ -106,13 +90,13 @@ export default function VideoArea({ participants = [] }) {
 
       {/* Video Area */}
       <div className="relative z-10 flex-1 p-6">
-        {hasRemoteParticipant ? (
+        {remotvideo ? (
           // Two-participant layout
           <div className="grid grid-cols-2 gap-6 h-full">
             {/* Local Video */}
             <div className="relative glass-panel rounded-2xl overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
               <video
-                ref={localVideoRef}
+                ref={myvid}
                 autoPlay
                 muted
                 playsInline
@@ -131,7 +115,47 @@ export default function VideoArea({ participants = [] }) {
                 <span className="text-white text-sm font-medium">You</span>
               </div>
 
-              {/* Local Video Status */}
+              {/* Hover Controls for Local Video - Bottom positioned */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
+                <div className="flex items-center justify-center space-x-3">
+                  {/* Audio Control */}
+                  <button
+                    onClick={toggleAudio}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 backdrop-blur-sm ${
+                      isAudioEnabled 
+                        ? 'bg-gray-800/70 text-white border border-gray-600/50 hover:bg-gray-700/70' 
+                        : 'bg-red-500/90 text-white shadow-lg shadow-red-500/25 hover:bg-red-400/90'
+                    }`}
+                    title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+                  >
+                    {isAudioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+                  </button>
+
+                  {/* Video Control */}
+                  <button
+                    onClick={toggleVideo}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 backdrop-blur-sm ${
+                      isVideoEnabled 
+                        ? 'bg-gray-800/70 text-white border border-gray-600/50 hover:bg-gray-700/70' 
+                        : 'bg-red-500/90 text-white shadow-lg shadow-red-500/25 hover:bg-red-400/90'
+                    }`}
+                    title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+                  >
+                    {isVideoEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+                  </button>
+
+                  {/* End Call */}
+                  <button
+                    onClick={endCall}
+                    className="w-12 h-12 rounded-xl bg-red-500/90 text-white flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-red-400/90 shadow-lg shadow-red-500/25 backdrop-blur-sm"
+                    title="End call"
+                  >
+                    <PhoneOff className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Status indicators (always visible when disabled) */}
               <div className="absolute top-4 right-4 flex space-x-2">
                 {!isVideoEnabled && (
                   <div className="w-8 h-8 bg-red-500/20 backdrop-blur-sm rounded-lg border border-red-500/30 flex items-center justify-center">
@@ -149,7 +173,7 @@ export default function VideoArea({ participants = [] }) {
             {/* Remote Video */}
             <div className="relative glass-panel rounded-2xl overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
               <video
-                ref={remoteVideoRef}
+                ref={remotvideo}
                 autoPlay
                 playsInline
                 className="w-full h-full object-cover"
@@ -194,7 +218,47 @@ export default function VideoArea({ participants = [] }) {
                 <span className="text-white font-medium">You</span>
               </div>
 
-              {/* Single Video Status */}
+              {/* Hover Controls for Single Video - Bottom positioned */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-6">
+                <div className="flex items-center justify-center space-x-4">
+                  {/* Audio Control */}
+                  <button
+                    onClick={toggleAudio}
+                    className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 backdrop-blur-sm ${
+                      isAudioEnabled 
+                        ? 'bg-gray-800/70 text-white border border-gray-600/50 hover:bg-gray-700/70' 
+                        : 'bg-red-500/90 text-white shadow-lg shadow-red-500/25 hover:bg-red-400/90'
+                    }`}
+                    title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+                  >
+                    {isAudioEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
+                  </button>
+
+                  {/* Video Control */}
+                  <button
+                    onClick={toggleVideo}
+                    className={`w-16 h-16 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 backdrop-blur-sm ${
+                      isVideoEnabled 
+                        ? 'bg-gray-800/70 text-white border border-gray-600/50 hover:bg-gray-700/70' 
+                        : 'bg-red-500/90 text-white shadow-lg shadow-red-500/25 hover:bg-red-400/90'
+                    }`}
+                    title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+                  >
+                    {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+                  </button>
+
+                  {/* End Call */}
+                  <button
+                    onClick={endCall}
+                    className="w-16 h-16 rounded-xl bg-red-500/90 text-white flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-red-400/90 shadow-lg shadow-red-500/25 backdrop-blur-sm"
+                    title="End call"
+                  >
+                    <PhoneOff className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Status indicators (always visible when disabled) */}
               <div className="absolute top-6 right-6 flex space-x-3">
                 {!isVideoEnabled && (
                   <div className="w-10 h-10 bg-red-500/20 backdrop-blur-sm rounded-xl border border-red-500/30 flex items-center justify-center">
@@ -212,56 +276,7 @@ export default function VideoArea({ participants = [] }) {
         )}
       </div>
 
-      {/* Control Bar */}
-      <div className="relative z-10 p-6 border-t border-gray-800/50">
-        <div className="flex justify-center">
-          <div className="glass-panel rounded-2xl p-4">
-            <div className="flex items-center space-x-4">
-              {/* Audio Control */}
-              <button
-                onClick={toggleAudio}
-                className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${
-                  isAudioEnabled 
-                    ? 'bg-gray-800/50 text-white border border-gray-700/50 hover:bg-gray-700/50' 
-                    : 'bg-red-500 text-white shadow-lg shadow-red-500/25 hover:bg-red-400'
-                }`}
-                title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
-              >
-                {isAudioEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
-              </button>
-
-              {/* Video Control */}
-              <button
-                onClick={toggleVideo}
-                className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${
-                  isVideoEnabled 
-                    ? 'bg-gray-800/50 text-white border border-gray-700/50 hover:bg-gray-700/50' 
-                    : 'bg-red-500 text-white shadow-lg shadow-red-500/25 hover:bg-red-400'
-                }`}
-                title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
-              >
-                {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
-              </button>
-
-              {/* End Call */}
-              <button
-                onClick={endCall}
-                className="w-14 h-14 rounded-xl bg-red-500 text-white flex items-center justify-center transition-all duration-200 hover:scale-105 hover:bg-red-400 shadow-lg shadow-red-500/25"
-                title="End call"
-              >
-                <PhoneOff className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Call Info */}
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-400">
-            Interview session • {new Date().toLocaleTimeString()}
-          </p>
-        </div>
-      </div>
+     
     </div>
   );
 }

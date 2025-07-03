@@ -26,6 +26,7 @@ console.log("first")
 }
 
 exports.loginuser = async (req, res) => {
+    console.log("coming")
     const { email, password } = req.body
     const userexists =await usermodel.findOne({ email: email })
 if (!userexists) return res.status(400).json({ message: "User does not exist" });
@@ -37,7 +38,7 @@ if (!ismatching) return res.status(401).json({ message: "Invalid credentials" })
 
     const token = jwt.sign({ email: email }, process.env.JWT_SECRET)
     res.cookie('token', token, { httpOnly: true });
-
+console.log("gya")
     res.json({
         message: "ok"
     })

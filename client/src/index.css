@@ -170,3 +170,30 @@
 button, input, textarea, select {
   @apply transition-all duration-200;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass-panel {
+    @apply bg-gray-900/30 backdrop-blur-sm border border-gray-700/30;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-800/50 text-gray-300 rounded-lg border border-gray-700/50 hover:bg-gray-700/50 hover:text-white transition-all duration-200;
+  }
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(5px) rotate(-1deg); }
+}
+
+.floating-animation {
+  animation: floating 6s ease-in-out infinite;
+}

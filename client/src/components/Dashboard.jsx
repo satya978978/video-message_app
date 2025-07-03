@@ -1,65 +1,76 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { 
-  Copy, 
-  Plus, 
-  Video, 
-  Clock, 
-  LogOut, 
-  Zap, 
-  Users, 
-  Calendar,
-  ExternalLink,
-  Sparkles,
-  Activity
-} from 'lucide-react';
+import { io } from 'socket.io-client';
+
+
+import { Copy, Plus, Video, Clock, LogOut, Zap, Users, Calendar, ExternalLink, Sparkles, Activity } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { useRef } from 'react';
 
 export default function Dashboard() {
+  const socket = useRef()
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [recentInterviews] = useState([
-    { 
-      id: '1', 
-      candidate: 'John Doe', 
-      date: '2024-01-15', 
+    {
+      id: '1',
+      candidate: 'John Doe',
+      date: '2024-01-15',
       role: 'Frontend Developer',
       status: 'completed',
       duration: '45 min'
     },
-    { 
-      id: '2', 
-      candidate: 'Jane Smith', 
-      date: '2024-01-14', 
+    {
+      id: '2',
+      candidate: 'Jane Smith',
+      date: '2024-01-14',
       role: 'Backend Developer',
       status: 'in-progress',
       duration: '30 min'
     },
-    { 
-      id: '3', 
-      candidate: 'Mike Johnson', 
-      date: '2024-01-13', 
+    {
+      id: '3',
+      candidate: 'Mike Johnson',
+      date: '2024-01-13',
       role: 'Full Stack Developer',
       status: 'scheduled',
       duration: '60 min'
     },
   ]);
-  
+  const [myid, setmyid] = useState('');
+
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const generateInterviewLink = async () => {
-    setIsGenerating(true);
-    // Simulate API call delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const generateInterviewLink = () => {
+  setIsGenerating(true);
+
+  const backend_link = import.meta.env.VITE_BACKEND_LINK;
+  socket.current = io(backend_link);
+
+  socket.current.on('connect', () => {
+    console.log('Connected to socket:', socket.current.id);
+
+    // Emit your custom event or wait for backend to emit 'myid'
+    socket.current.on('hostid', (id) => {
+      console.log('Received host id:', id);
+      setmyid(id);
+
+
+      const link = `${window.location.origin}/interview/${id}`;
+      setGeneratedLink(link);
+      setIsGenerating(false);
+    });
+
+  
+  });
+};
+
     
-    const sessionId = uuidv4();
-    const link = `${window.location.origin}/interview/${sessionId}`;
-    setGeneratedLink(link);
-    setIsGenerating(false);
-  };
+ 
 
   const copyToClipboard = async () => {
     try {
@@ -103,7 +114,7 @@ export default function Dashboard() {
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl floating-animation"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-800/20 rounded-full blur-3xl floating-animation" style={{animationDelay: '3s'}}></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-800/20 rounded-full blur-3xl floating-animation" style={{ animationDelay: '3s' }}></div>
       </div>
 
       {/* Header */}
@@ -162,15 +173,14 @@ export default function Dashboard() {
                 <Sparkles className="w-6 h-6 text-blue-400" />
                 <h2 className="text-2xl font-bold text-white">Create New Interview</h2>
               </div>
-              
+
               <div className="space-y-8">
                 <div className="text-center">
                   <button
                     onClick={generateInterviewLink}
                     disabled={isGenerating}
-                    className={`btn-primary flex items-center space-x-3 mx-auto text-lg px-10 py-5 ${
-                      isGenerating ? 'opacity-75 cursor-not-allowed' : ''
-                    }`}
+                    className={`btn-primary flex items-center space-x-3 mx-auto text-lg px-10 py-5 ${isGenerating ? 'opacity-75 cursor-not-allowed' : ''
+                      }`}
                   >
                     {isGenerating ? (
                       <>
@@ -204,16 +214,15 @@ export default function Dashboard() {
                         />
                         <button
                           onClick={copyToClipboard}
-                          className={`btn-secondary flex items-center space-x-2 ${
-                            copied ? 'bg-green-600 hover:bg-green-500' : ''
-                          }`}
+                          className={`btn-secondary flex items-center space-x-2 ${copied ? 'bg-green-600 hover:bg-green-500' : ''
+                            }`}
                         >
                           <Copy className="w-4 h-4" />
                           <span>{copied ? 'Copied!' : 'Copy'}</span>
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-4">
                       <button
                         onClick={joinInterview}
@@ -242,7 +251,7 @@ export default function Dashboard() {
                   View All
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 {recentInterviews.map((interview, index) => (
                   <div key={interview.id} className={`interview-card group slide-in stagger-${index + 1}`}>
@@ -269,7 +278,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              
+
               <button className="w-full mt-6 btn-secondary text-center">
                 Schedule New Interview
               </button>

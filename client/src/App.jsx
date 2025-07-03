@@ -30,9 +30,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={
-              <ProtectedRoute>
+            
                 <Dashboard />
-              </ProtectedRoute>
+             
             } />
             <Route path="/interview/:sessionId" element={<InterviewRoom />} />
             <Route path="/" element={<Navigate to="/login" />} />
