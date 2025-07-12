@@ -7,6 +7,7 @@ import InterviewRoom from './components/InterviewRoom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
 
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   

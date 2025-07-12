@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { io } from 'socket.io-client';
+
 
 
 import { Copy, Plus, Video, Clock, LogOut, Zap, Users, Calendar, ExternalLink, Sparkles, Activity } from 'lucide-react';
@@ -39,7 +39,7 @@ export default function Dashboard() {
       duration: '60 min'
     },
   ]);
-  const [myid, setmyid] = useState('');
+
 
 
   const { user, logout } = useAuth();
@@ -47,26 +47,14 @@ export default function Dashboard() {
 
   const generateInterviewLink = () => {
   setIsGenerating(true);
+setTimeout(() => {
+    const id = uuidv4();
 
-  const backend_link = import.meta.env.VITE_BACKEND_LINK;
-  socket.current = io(backend_link);
-
-  socket.current.on('connect', () => {
-    console.log('Connected to socket:', socket.current.id);
-
-    // Emit your custom event or wait for backend to emit 'myid'
-    socket.current.on('hostid', (id) => {
-      console.log('Received host id:', id);
-      setmyid(id);
-
-
-      const link = `${window.location.origin}/interview/${id}`;
+ const link = `${window.location.origin}/interview/${id}`;
       setGeneratedLink(link);
-      setIsGenerating(false);
-    });
-
-  
-  });
+     setIsGenerating(false);
+}, 1000);
+   
 };
 
     

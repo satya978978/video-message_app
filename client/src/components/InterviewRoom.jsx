@@ -6,80 +6,130 @@ import DocsPanel from './interview/DocsPanel';
 import ChatPanel from './interview/ChatPanel';
 import AIPanel from './interview/AIPanel';
 import { io } from 'socket.io-client';
-import { useParams } from 'react-router-dom';
+import { useParams,Navigate } from 'react-router-dom';
 import SimplePeer from 'simple-peer';
-import { CloudHail } from 'lucide-react';
-
-
-
 
 export default function InterviewRoom() {
-  const [conecteduser_signal, setconecteduser_signal] = useState("")
   const { sessionId } = useParams();
+  
   const [activePanel, setActivePanel] = useState(null);
-  const [participants, setParticipants] = useState([]);
-  const [stream, setstream] = useState('')
-  const [connectedUserId, setConnectedUserId] = useState("");
-  const socket = useRef()
-  const myvideo = useRef()
-  const peerRef = useRef()
-  const RemoteStream = useRef()
-  const userSocketid= useRef()
-  useEffect(() => {
-    const getpermisions = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      })
-      setstream(stream)
-      myvideo.current.srcObject = stream
-    }
-    getpermisions()
+  const [stream, setStream] = useState(null);
+  const [remoteStream, setRemoteStream] = useState(null);
+const [shouldRedirect, setShouldRedirect] = useState(false);
+const [meetingEnded, setMeetingEnded] = useState(false);
 
-  }, [])
+  const socket = useRef();
+  const peerRef = useRef({});
+  const userSocketId = useRef();
+
   useEffect(() => {
-    if (!stream) return
-    const backend_link = import.meta.env.VITE_BACKEND_LINK;
-    socket.current = io(backend_link);
+    const getPermissions = async () => {
+      const localStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      setStream(localStream);
+    };
+    getPermissions();
+  }, []);
+
+    
+  useEffect(() => {
+    if (!stream) return;
+const backendLink = import.meta.env.VITE_BACKEND_LINK;
+    socket.current = io(backendLink);
+    
 
     socket.current.on('connect', () => {
-console.log(`new user connected ${socket.current.id}`);
-userSocketid.current=socket.current.id
-      socket.current.emit("join-room", { sessionId })
-
-    })
-  socket.current.on('user-joined-4host', ({NewUserId}) => {
-    const peer = new SimplePeer({ initiator: true, trickle: false, stream })
-    peer.on('signal', signal => {
-      socket.current.emit('send-signal', {
-        signal,
-        from:  socket.current.id,
-        to: NewUserId
-      });
-    })
-    peer.on("stream", remotestream => {
-      RemoteStream.current.srcObject = remotestream
-    })
-    socket.current.on("end-handshake", ({ signal }) => {
-      console.log("ok hai sab bro")
-      peer.signal(signal);
+      console.log("interview mounted")
+      console.log(`Connected as ${socket.current.id}`);
+      userSocketId.current = socket.current.id;
+      socket.current.emit('join-room', { roomid: sessionId });
     });
 
-  })
-socket.current.on("sendig-signal-4user", ({ from, signal }) => {
-    const peer = new SimplePeer({ initiator: false, trickle: false, stream });
-    peer.on('signal', answerSignal => {
-      socket.current.emit('sending-recivied-signal', { signal: answerSignal, to: from })
-    })
-    peer.on("stream", remotestream => {
-      RemoteStream.current.srcObject = remotestream
-    })
-    peer.signal(signal)
-  })
+    socket.current.on('room-full', () => {
+      alert('Room is full. Cannot join.');
+    });
 
-  },[stream])
+    socket.current.on('user-joined-4host', ({ NewUserId }) => {
+      console.log(`Starting call as initiator with ${NewUserId}`);
+      const peer = new SimplePeer({
+        initiator: true,
+        trickle: false,
+        stream: stream,
+      });
 
+      peer.on('signal', (signal) => {
+        socket.current.emit('send-signal', {
+          to: NewUserId,
+          from: userSocketId.current,
+          signal,
+        });
+      });
+
+      peer.on('stream', (remote) => {
+        setRemoteStream(remote);
+      });
+
+      peerRef.current[NewUserId] = peer;
+    });
+
+    socket.current.on('sendig-signal-4user', ({ from, signal }) => {
+      if (!stream) {
+    console.error('No local stream yet! Waiting for media...');
+    return; 
+  }
+      console.log(`Received offer from ${from}`);
+      const peer = new SimplePeer({
+        initiator: false,
+        trickle: false,
+        stream: stream,
+      });
+
+      peer.on('signal', (answerSignal) => {
+        socket.current.emit('sending-recivied-signal', {
+          to: from,
+          from: userSocketId.current,
+          signal: answerSignal,
+        });
+      });
+
+      peer.on('stream', (remote) => {
+        setRemoteStream(remote);
+      });
+
+      peer.signal(signal);
+      peerRef.current[from] = peer;
+    });
+
+    socket.current.on('end-handshake', ({ from, signal }) => {
+      console.log(`Received answer from ${from}`);
+      const peer = peerRef.current[from];
+      if (peer && !peer.destroyed) {
+        peer.signal(signal);
+      }
+      console.log("handshake ok")
+    });
+    socket.current.on("peer-destroy", ({ id }) => {
+      const peer = peerRef.current[id]
+      if (peer) {
+        peer.destroy()
+      }
+      delete peerRef.current[id]
+      console.log(`Peer ${id} left, destroyed connection.`);
+      socket.current.emit("leave_room",{ roomid: sessionId })
+ 
+  setMeetingEnded(true)
   
+    })
+    return () => {
+      socket.current.disconnect();
+      console.log("interview unmounted")
+
+    };
+  }, [stream]);
+
+
 
   const renderPanel = () => {
     switch (activePanel) {
@@ -98,24 +148,34 @@ socket.current.on("sendig-signal-4user", ({ from, signal }) => {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
+{meetingEnded && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+    <div className="animate-slide-in bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full">
+      <h2 className="text-2xl font-semibold text-white mb-3">You Ended Meet</h2>
+      <p className="text-gray-200 mb-6">The call has been disconnected.</p>
+      <button
+        onClick={() => window.location.href = '/dashboard'}
+        className="bg-white/20 text-white px-5 py-2 rounded-full border border-white/30 hover:bg-white/30 transition"
+      >
+        Go to Dashboard
+      </button>
+    </div>
+  </div>
+)}
 
 
 
-      {/* Main Content */}
       <div className="flex-1 flex">
         <div className={`transition-all duration-300 ${activePanel ? 'w-1/2' : 'w-full'}`}>
-          <VideoArea myvid={myvideo} remotvideo={RemoteStream} />
+          <VideoArea localvideo={stream} remotvideo={remoteStream} socket={socket} />
         </div>
-
-
         {activePanel && (
           <div className="w-1/2 border-l border-gray-200 bg-white">
             {renderPanel()}
           </div>
         )}
       </div>
-
-      {/* Control Bar */}
+      
       <ControlBar
         activePanel={activePanel}
         setActivePanel={setActivePanel}

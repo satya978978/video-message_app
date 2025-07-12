@@ -1,52 +1,69 @@
 import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Video, VideoOff, Phone, PhoneOff, Users, Settings } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import e from 'cors';
 
-export default function VideoArea({myvid,remotvideo}) {
+export default function VideoArea({remotvideo,localvideo,socket}) {
+    const { sessionId } = useParams();
   const [localStream, setLocalStream] = useState(null);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
- 
+ const remotestream= useRef()
 
-  useEffect(() => {
-
+const myvid= useRef()
   
-
-
-
-
-
-  }, []);
-
-  
-
-
-  const toggleVideo = () => {
-    if (myvid) {
-      const videoTrack = myvid.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoEnabled(videoTrack.enabled);
-      }
+   useEffect(() => {
+    if (myvid.current && localvideo) {
+       myvid.current.srcObject= localvideo
+      
     }
+   }, [localvideo])
+   
+  useEffect(() => {
+    if (remotestream.current && remotvideo) {
+      remotestream.current.srcObject = remotvideo; // works now!
+    }
+
+  }, [remotvideo]);
+
+  
+  const toggleVideo = () => {
+   if (localvideo) {
+    const video_tracks= localvideo.getVideoTracks()[0]
+    if (video_tracks) {
+      video_tracks.enable=!video_tracks.enable
+      setIsVideoEnabled(!video_tracks.enable)
+      
+    }
+    
+   }
   };
 
   const toggleAudio = () => {
-    if (myvid) {
-      const audioTrack = myvid.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsAudioEnabled(audioTrack.enabled);
-      }
-    }
+   if (localvideo) {
+    const audio_track= localvideo.getAudioTracks()[0]
+    audio_track.enable= !audio_track.enable
+    setIsAudioEnabled(!audio_track.enable)
+   }
   };
 
   const endCall = () => {
-    if (myvid) {
-      myvid.getTracks().forEach(track => track.stop());
+    if (localvideo) {
+      localvideo.getTracks().forEach(track => track.stop());
       setLocalStream(null);
       setIsConnected(false);
+     
     }
+    if (socket) {
+          socket.current.emit("peer_broke",{roomid:sessionId})
+    console.log("ok hai cut") 
+    setIsVideoEnabled(false)
+    }else{
+      console.log("socket nhi hai")
+    }
+
+
   };
 
   return (
@@ -88,9 +105,10 @@ export default function VideoArea({myvid,remotvideo}) {
         </div>
       </div>
 
+
       {/* Video Area */}
       <div className="relative z-10 flex-1 p-6">
-        {remotvideo ? (
+        {remotestream ? (
           // Two-participant layout
           <div className="grid grid-cols-2 gap-6 h-full">
             {/* Local Video */}
@@ -173,12 +191,12 @@ export default function VideoArea({myvid,remotvideo}) {
             {/* Remote Video */}
             <div className="relative glass-panel rounded-2xl overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
               <video
-                ref={remotvideo}
+                ref={remotestream}
                 autoPlay
                 playsInline
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+             {!remotvideo &&( <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <span className="text-white text-2xl font-bold">G</span>
@@ -186,7 +204,7 @@ export default function VideoArea({myvid,remotvideo}) {
                   <p className="text-white font-semibold mb-2">Waiting for participant...</p>
                   <p className="text-gray-400 text-sm">Share the interview link to get started</p>
                 </div>
-              </div>
+              </div>)}
               
               {/* Remote Video Label */}
               <div className="absolute top-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-sm rounded-lg border border-gray-700/50">
@@ -199,7 +217,7 @@ export default function VideoArea({myvid,remotvideo}) {
           <div className="h-full flex items-center justify-center">
             <div className="relative glass-panel rounded-2xl overflow-hidden max-w-4xl w-full aspect-video group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
               <video
-                ref={localVideoRef}
+                ref={myvid}
                 autoPlay
                 muted
                 playsInline

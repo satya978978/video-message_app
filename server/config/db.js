@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'; 
 
-const dotenv = require('dotenv');
+import dotenv from 'dotenv'
 dotenv.config();
 const db = async ()=>{
     try{
@@ -13,6 +13,5 @@ const db = async ()=>{
         console.log(`you have error in mongo db connection-- ${err}`)
     }
 }
-module.exports=db
-
+export default db
 
