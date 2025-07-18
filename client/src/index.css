@@ -5,6 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+
 @layer base {
   
   
@@ -32,7 +35,10 @@
   }
   
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95;
+    @apply bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95;
+  }
+  .btn-primary1 {
+    @apply bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95;
   }
   
   .btn-secondary {

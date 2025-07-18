@@ -79,7 +79,7 @@ export default function CodePanel({ sessionId }) {
           <button
             onClick={runCode}
             disabled={isRunning}
-            className="btn-primary flex items-center space-x-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary1 flex items-center space-x-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isRunning ? (
               <>

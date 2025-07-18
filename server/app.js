@@ -3,11 +3,10 @@ import cors from 'cors';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import authroute from './routes/authroutes.js';
+import airoute from './routes/airoutes.js'
 import db from './config/db.js';
-
- import {WebSocketServer} from 'ws';
- import { setupWSConnection } from 'y-websocket/bin/utils.js';
-
+import { WebSocketServer } from 'ws';
+import { setupWSConnection } from 'y-websocket/bin/utils.js';
 
 const app = express();
 const httpserver = createServer(app);
@@ -20,19 +19,19 @@ const io = new Server(httpserver, {
 });
 
 
-const wss = new WebSocketServer({noServer:true})
-httpserver.on('upgrade',(req,socket,head)=>{
+const wss = new WebSocketServer({ noServer: true })
+httpserver.on('upgrade', (req, socket, head) => {
   if (req.url.startsWith('/yjs')) {
-    wss.handleUpgrade(req,socket,head,(ws)=>{
-      setupWSConnection(ws,req)
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      setupWSConnection(ws, req)
     })
-    
+
   }
 })
 
 
 io.on('connection', (socket) => {
- 
+
   console.log(`New socket connected: ${socket.id}`);
 
   socket.on('join-room', ({ roomid }) => {
@@ -62,14 +61,19 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log(`Socket disconnected: ${socket.id}`);
   });
-  socket.on("peer_broke",({roomid})=>{
-  socket.emit("peer-destroy",{id:socket.id})
+  socket.on("peer_broke", ({ roomid }) => {
+    socket.emit("peer-destroy", { id: socket.id })
   })
- socket.on("leave_room", ({ roomid }) => {
-  socket.leave(roomid)
-  const room = io.sockets.adapter.rooms.get(roomid);
-  console.log(room ? room.size : 'Room not found');
-});
+  socket.on("leave_room", ({ roomid }) => {
+    socket.leave(roomid)
+    const room = io.sockets.adapter.rooms.get(roomid);
+    console.log(room ? room.size : 'Room not found');
+  });
+
+  socket.on('messageSend',(message)=>{
+    const chat= {sender:'user',message:message}
+ socket.broadcast.emit('getMessage',chat)
+  })
 });
 
 db();
@@ -86,7 +90,7 @@ app.use(
 
 app.use(express.json());
 app.use('/api', authroute);
-
+app.use('/api',airoute)
 app.get('/', (req, res) => {
   res.send('🚀 Hello from Express backend!');
 });

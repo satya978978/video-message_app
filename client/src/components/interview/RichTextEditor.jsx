@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import * as Y from 'yjs';
 
+
 import { WebsocketProvider } from "y-websocket";
 import { useParams } from "react-router-dom";
 export default function RichTextEditor({ content, onChange }) {
@@ -24,11 +25,6 @@ export default function RichTextEditor({ content, onChange }) {
     return () => {
       update.destroy()
       ydoc.destroy()
-
-
-
-
-
     }
   }, [ydoc])
 
@@ -57,7 +53,7 @@ export default function RichTextEditor({ content, onChange }) {
 
 
   return (
-    <div className="w-full focus:outline-none">
+    <div className="w-full  focus:outline-none">
       {/* Toolbar */}
       <div className="flex flex-wrap gap-1 mb-2 bg-gray-800 p-1 rounded items-center">
         <button

@@ -26,15 +26,11 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-white">
+        <div className="h-screen bg-white">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/dashboard" element={
-            
-                <Dashboard />
-             
-            } />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/interview/:sessionId" element={<InterviewRoom />} />
             <Route path="/" element={<Navigate to="/login" />} />
           </Routes>

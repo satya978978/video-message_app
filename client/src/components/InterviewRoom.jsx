@@ -6,17 +6,17 @@ import DocsPanel from './interview/DocsPanel';
 import ChatPanel from './interview/ChatPanel';
 import AIPanel from './interview/AIPanel';
 import { io } from 'socket.io-client';
-import { useParams,Navigate } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import SimplePeer from 'simple-peer';
 
 export default function InterviewRoom() {
   const { sessionId } = useParams();
-  
+
   const [activePanel, setActivePanel] = useState(null);
   const [stream, setStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
-const [shouldRedirect, setShouldRedirect] = useState(false);
-const [meetingEnded, setMeetingEnded] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [meetingEnded, setMeetingEnded] = useState(false);
 
   const socket = useRef();
   const peerRef = useRef({});
@@ -33,12 +33,12 @@ const [meetingEnded, setMeetingEnded] = useState(false);
     getPermissions();
   }, []);
 
-    
+
   useEffect(() => {
     if (!stream) return;
-const backendLink = import.meta.env.VITE_BACKEND_LINK;
+    const backendLink = import.meta.env.VITE_BACKEND_LINK;
     socket.current = io(backendLink);
-    
+
 
     socket.current.on('connect', () => {
       console.log("interview mounted")
@@ -76,9 +76,9 @@ const backendLink = import.meta.env.VITE_BACKEND_LINK;
 
     socket.current.on('sendig-signal-4user', ({ from, signal }) => {
       if (!stream) {
-    console.error('No local stream yet! Waiting for media...');
-    return; 
-  }
+        console.error('No local stream yet! Waiting for media...');
+        return;
+      }
       console.log(`Received offer from ${from}`);
       const peer = new SimplePeer({
         initiator: false,
@@ -117,10 +117,10 @@ const backendLink = import.meta.env.VITE_BACKEND_LINK;
       }
       delete peerRef.current[id]
       console.log(`Peer ${id} left, destroyed connection.`);
-      socket.current.emit("leave_room",{ roomid: sessionId })
- 
-  setMeetingEnded(true)
-  
+      socket.current.emit("leave_room", { roomid: sessionId })
+
+      setMeetingEnded(true)
+
     })
     return () => {
       socket.current.disconnect();
@@ -147,21 +147,21 @@ const backendLink = import.meta.env.VITE_BACKEND_LINK;
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col">
-{meetingEnded && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-    <div className="animate-slide-in bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full">
-      <h2 className="text-2xl font-semibold text-white mb-3">You Ended Meet</h2>
-      <p className="text-gray-200 mb-6">The call has been disconnected.</p>
-      <button
-        onClick={() => window.location.href = '/dashboard'}
-        className="bg-white/20 text-white px-5 py-2 rounded-full border border-white/30 hover:bg-white/30 transition"
-      >
-        Go to Dashboard
-      </button>
-    </div>
-  </div>
-)}
+    <div className="h-full bg-gray-50 flex flex-col">
+      {meetingEnded && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+          <div className="animate-slide-in bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full">
+            <h2 className="text-2xl font-semibold text-white mb-3">You Ended Meet</h2>
+            <p className="text-gray-200 mb-6">The call has been disconnected.</p>
+            <button
+              onClick={() => window.location.href = '/dashboard'}
+              className="bg-white/20 text-white px-5 py-2 rounded-full border border-white/30 hover:bg-white/30 transition"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        </div>
+      )}
 
 
 
@@ -175,7 +175,7 @@ const backendLink = import.meta.env.VITE_BACKEND_LINK;
           </div>
         )}
       </div>
-      
+
       <ControlBar
         activePanel={activePanel}
         setActivePanel={setActivePanel}

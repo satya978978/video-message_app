@@ -10,6 +10,7 @@ export default function LoginUI() {
   const navigate = useNavigate()
   const [password, setpassword] = useState("")
   const [email, setemail] = useState("")
+  
   const submit = async (e) => {
     e.preventDefault();
     const res = await axios.post('/api/login', { password, email })
