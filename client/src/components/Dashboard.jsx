@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useRef } from 'react';
 
 export default function Dashboard() {
+localStorage.clear()
   const socket = useRef()
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);

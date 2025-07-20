@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sparkles, Copy, Plus } from 'lucide-react';
 import axios from '../auth/axios.js';
-
 const questionTypes = ['General', 'Technical', 'Behavioral', 'System Design'];
 
 export default function AIPanel({ sessionId }) {
@@ -9,26 +8,35 @@ export default function AIPanel({ sessionId }) {
   const [selectedType, setSelectedType] = useState('General');
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  let array=""
+  useEffect(()=>{
+     const Q =localStorage.getItem('questions')
+     if (Q) {
+setGeneratedQuestions(JSON.parse(Q))
+     }
+  },[])
+
+  const copyQuestion=(question)=>{
+   navigator.clipboard.writeText(question)
+  }
+
 
   const generateQuestions = async () => {
     try{
        setIsGenerating(true)
    const res = await axios.post('/api/aichat',{jobDescription,selectedType})
     console.log(res.data)
-  const array = res.data
-  const question_array  = JSON.parse(array)
-  console.log(question_array)
+   array = res.data
+ localStorage.setItem('questions',JSON.stringify(array))
+ setGeneratedQuestions(array)
    setIsGenerating(false)
+
 
     }
    catch (err){
     console.log(err)
     setIsGenerating(false)
    }
-
-
-
-
   };
 
   return (
@@ -83,22 +91,22 @@ export default function AIPanel({ sessionId }) {
       <div className="flex-1 overflow-y-auto space-y-4">
         {generatedQuestions.length > 0 ? (
           <div className="space-y-4">
-            {generatedQuestions.map((q, i) => (
+            {generatedQuestions.map((q,i ) => (
               <div
                 key={i}
                 className="p-4 bg-gray-800/70 border border-gray-700 rounded-lg space-y-3 hover:bg-gray-700/70 transition-all"
               >
-                <p className="text-white font-medium text-base">{q}</p>
+                <p className="text-white font-medium text-base">{q.question}</p>
                 <div className="flex space-x-3">
                   <button
-                    onClick={() => copyQuestion(q)}
+                    onClick={() => copyQuestion(q.question)}
                     className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded flex items-center space-x-1"
                   >
                     <Copy className="w-4 h-4" />
                     <span>Copy</span>
                   </button>
                   <button
-                    onClick={() => addToSession(q)}
+                    onClick={() => addToSession(q.question)}
                     className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center space-x-1"
                   >
                     <Plus className="w-4 h-4" />

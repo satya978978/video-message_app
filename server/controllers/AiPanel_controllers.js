@@ -11,7 +11,7 @@ const cohere = new CohereClient({
 
     const { jobDescription, selectedType } = req.body;
 
-   const prompt = `You are an AI that generates interview questions. Based on the following job description: "${jobDescription}", generate exactly 4 "${selectedType}" interview questions in valid JSON format.
+   const prompt = `You are an AI that generates interview questions. Based on the following job description: "${jobDescription}", generate exactly 3 "${selectedType}" interview questions in valid JSON format.
 Respond with ONLY valid JSON — do not include any markdown formatting, code block markers, backticks, or explanations.
 The response must be a pure JSON array of objects, like:
 [
