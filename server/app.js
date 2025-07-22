@@ -7,6 +7,7 @@ import airoute from './routes/airoutes.js'
 import db from './config/db.js';
 import { WebSocketServer } from 'ws';
 import { setupWSConnection } from 'y-websocket/bin/utils.js';
+import coderoute from './routes/CodeRoute.js'
 
 const app = express();
 const httpserver = createServer(app);
@@ -91,6 +92,7 @@ app.use(
 app.use(express.json());
 app.use('/api', authroute);
 app.use('/api',airoute)
+app.use('/api',coderoute)
 app.get('/', (req, res) => {
   res.send('🚀 Hello from Express backend!');
 });

@@ -6,17 +6,23 @@ import underline from "@tiptap/extension-underline";
 import Collaboration from "@tiptap/extension-collaboration";
 
 import {
-  Bold,Italic,Underline,Highlighter,List,ListOrdered,Heading1,Heading2,Heading3,Undo2,Redo2,Code2,ChevronDown,
+  Bold, Italic, Underline, Highlighter, List, ListOrdered, Heading1, Heading2, Heading3, Undo2, Redo2, Code2, ChevronDown,
 } from "lucide-react";
 import * as Y from 'yjs';
 
 
 import { WebsocketProvider } from "y-websocket";
-import { useParams } from "react-router-dom";
-export default function RichTextEditor({ content, onChange }) {
+import { useFetcher, useParams } from "react-router-dom";
+export default function RichTextEditor({ content, onChange, Question }) {
+  const [aiQuestion, setaiQuestion] = useState("")
+
+
+  
+
   const { sessionId } = useParams();
 
- const [ydoc]= useState(()=>new Y.Doc())
+  const [ydoc] = useState(() => new Y.Doc())
+ 
 
   useEffect(() => {
 
@@ -32,7 +38,7 @@ export default function RichTextEditor({ content, onChange }) {
 
   const editor = useEditor(
 
-   {
+    {
       extensions: [
         StarterKit,
         highlight,
@@ -46,7 +52,28 @@ export default function RichTextEditor({ content, onChange }) {
       },
     });
 
+  useEffect(() => {
 
+    const editortext= editor.getText()
+
+    if (!editortext.includes(Question)) {
+      setaiQuestion(Question)
+    }
+  }, [editor])
+
+
+   useEffect(() => {
+    if (editor && aiQuestion) {
+
+
+      editor.commands.setContent(aiQuestion);
+      setaiQuestion("")
+      console.log(`after clear ${aiQuestion}`)
+
+  
+}
+   }, [aiQuestion,editor])
+   
 
 
 

@@ -17,6 +17,7 @@ export default function InterviewRoom() {
   const [remoteStream, setRemoteStream] = useState(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [meetingEnded, setMeetingEnded] = useState(false);
+   const [question, setquestion]= useState("")
 
   const socket = useRef();
   const peerRef = useRef({});
@@ -129,6 +130,12 @@ export default function InterviewRoom() {
     };
   }, [stream]);
 
+  const questionadd=(question)=>{
+    console.log(question)
+    setquestion(question)
+
+  }
+
 
 
   const renderPanel = () => {
@@ -136,11 +143,11 @@ export default function InterviewRoom() {
       case 'code':
         return <CodePanel sessionId={sessionId} />;
       case 'docs':
-        return <DocsPanel sessionId={sessionId} />;
+        return <DocsPanel sessionId={sessionId} Question={question} />;
       case 'chat':
         return <ChatPanel sessionId={sessionId} />;
       case 'ai':
-        return <AIPanel sessionId={sessionId} />;
+        return <AIPanel  AddQuestion={questionadd} sessionId={sessionId} />;
       default:
         return null;
     }

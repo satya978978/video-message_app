@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, Play, Copy, Code2, Lock, Unlock } from 'lucide-react';
+import { Editor } from '@monaco-editor/react';
+import axios from 'axios';
 
 const languages = [
   { id: 'javascript', name: 'JavaScript', defaultCode: '// Write your JavaScript code here\nfunction solution() {\n    // Your code here\n    return "Hello World!";\n}\n\nconsole.log(solution());' },
@@ -31,10 +33,10 @@ export default function CodePanel({ sessionId }) {
 
   const runCode = async () => {
     setIsRunning(true);
-    // Simulate code execution
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsRunning(false);
-    console.log('Running code:', code);
+     const res = await axios.post("/api/runcode",{code}
+     )
+     console.log(res.data.output)
+     setIsRunning(false)
   };
 
   return (
@@ -99,17 +101,13 @@ export default function CodePanel({ sessionId }) {
       {/* Editor */}
       <div className="flex-1 p-6">
         <div className="h-full glass-panel rounded-xl overflow-hidden">
-          <textarea
-            value={code}
-            onChange={handleCodeChange}
-            readOnly={isLocked}
-            className="w-full h-full bg-transparent text-gray-200 font-mono text-sm leading-relaxed p-6 resize-none focus:outline-none"
-            style={{ 
-              fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-              tabSize: 2
-            }}
-            spellCheck={false}
-          />
+            <Editor   theme="vs-dark"
+            defaultLanguage="javascript" 
+
+            onChange={(value)=>setCode(value)}
+              defaultValue="// write your code here"
+/> 
+
         </div>
       </div>
 

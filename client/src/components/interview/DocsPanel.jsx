@@ -3,7 +3,7 @@ import { FileText, Download, Edit3, Palette } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import DrawingCanvas from './DrawingCanvas';
 
-export default function DocsPanel({ sessionId }) {
+export default function DocsPanel({ sessionId ,Question}) {
   const [content, setContent] = useState('');
   const [currentMode, setCurrentMode] = useState('writing');
 
@@ -67,7 +67,7 @@ export default function DocsPanel({ sessionId }) {
       <div className="flex-1 flex flex-col">
         {currentMode === 'writing' ? (
           <div className="flex-1 glass-panel rounded-xl m-6">
-<RichTextEditor content={content} onChange={setContent} />
+<RichTextEditor content={content} Question={Question} onChange={setContent} />
           </div>
         ) : (
           <div className="flex-1">

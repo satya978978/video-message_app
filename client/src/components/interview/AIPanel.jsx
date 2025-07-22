@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+ import { useEffect, useState } from 'react';
 import { Sparkles, Copy, Plus } from 'lucide-react';
 import axios from '../auth/axios.js';
 const questionTypes = ['General', 'Technical', 'Behavioral', 'System Design'];
 
-export default function AIPanel({ sessionId }) {
+export default function AIPanel({AddQuestion, sessionId }) {
   const [jobDescription, setJobDescription] = useState('');
   const [selectedType, setSelectedType] = useState('General');
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
@@ -19,6 +19,11 @@ setGeneratedQuestions(JSON.parse(Q))
   const copyQuestion=(question)=>{
    navigator.clipboard.writeText(question)
   }
+
+ const addToSession=(question)=>{
+  AddQuestion(question)
+
+ }
 
 
   const generateQuestions = async () => {
