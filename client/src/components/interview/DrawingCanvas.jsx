@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
 import { Pen, Square, Circle, Eraser, Trash2, Download, Palette, Pointer } from 'lucide-react';
-import { fabric } from 'fabric'
 import { useParams } from 'react-router-dom';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';

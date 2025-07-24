@@ -4,37 +4,27 @@ import StarterKit from "@tiptap/starter-kit";
 import highlight from "@tiptap/extension-highlight";
 import underline from "@tiptap/extension-underline";
 import Collaboration from "@tiptap/extension-collaboration";
-
 import {
   Bold, Italic, Underline, Highlighter, List, ListOrdered, Heading1, Heading2, Heading3, Undo2, Redo2, Code2, ChevronDown,
 } from "lucide-react";
 import * as Y from 'yjs';
-
-
 import { WebsocketProvider } from "y-websocket";
 import { useFetcher, useParams } from "react-router-dom";
+
 export default function RichTextEditor({ content, onChange, Question }) {
   const [aiQuestion, setaiQuestion] = useState("")
-
-
-  
-
   const { sessionId } = useParams();
-
   const [ydoc] = useState(() => new Y.Doc())
  
-
   useEffect(() => {
-
     const update = new WebsocketProvider("ws://localhost:5000/yjs", sessionId, ydoc)
-
+ console.log("ok edit")
     return () => {
       update.destroy()
       ydoc.destroy()
     }
   }, [ydoc])
 
-  if (!ydoc) return
 
   const editor = useEditor(
 
@@ -62,18 +52,15 @@ export default function RichTextEditor({ content, onChange, Question }) {
   }, [editor])
 
 
-   useEffect(() => {
-    if (editor && aiQuestion) {
+useEffect(() => {
+  if (editor && aiQuestion) {
+    // Use insertText instead of insertContent for Yjs doc
+    editor.commands.insertText(aiQuestion + "\n");
+    setaiQuestion("");
+    console.log(`Inserted: ${aiQuestion}`);
+  }
+}, [aiQuestion, editor]);
 
-
-      editor.commands.setContent(aiQuestion);
-      setaiQuestion("")
-      console.log(`after clear ${aiQuestion}`)
-
-  
-}
-   }, [aiQuestion,editor])
-   
 
 
 

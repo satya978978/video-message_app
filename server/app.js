@@ -23,6 +23,7 @@ const io = new Server(httpserver, {
 const wss = new WebSocketServer({ noServer: true })
 httpserver.on('upgrade', (req, socket, head) => {
   if (req.url.startsWith('/yjs')) {
+    console.log("ok edit back")
     wss.handleUpgrade(req, socket, head, (ws) => {
       setupWSConnection(ws, req)
     })
