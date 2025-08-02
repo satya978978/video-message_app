@@ -54,13 +54,7 @@ export default function DocsPanel({ sessionId ,Question}) {
           </div>
         </div>
 
-        <button
-          onClick={exportToPDF}
-          className="btn-primary flex items-center space-x-2 text-sm"
-        >
-          <Download className="w-4 h-4" />
-          <span>Export PDF</span>
-        </button>
+       
       </div>
 
       {/* Content Area */}
@@ -97,9 +91,7 @@ export default function DocsPanel({ sessionId ,Question}) {
                 <span className="text-sm text-gray-500">
                   {content.replace(/<[^>]*>/g, '').length} characters
                 </span>
-                <span className="text-sm text-gray-500">
-                  {content.split('\n').length} lines
-                </span>
+               
               </>
             )}
           </div>

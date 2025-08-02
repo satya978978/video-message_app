@@ -1,15 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import Dashboard from './components/Dashboard';
 import InterviewRoom from './components/InterviewRoom';
-import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
 
-
 function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user, loading } = AuthProvider();
   
   if (loading) {
     return (
@@ -24,7 +21,6 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
       <Router>
         <div className="h-screen bg-white">
           <Routes>
@@ -36,7 +32,6 @@ function App() {
           </Routes>
         </div>
       </Router>
-    </AuthProvider>
   );
 }
 

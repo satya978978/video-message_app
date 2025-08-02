@@ -17,7 +17,7 @@ export default function InterviewRoom() {
   const [remoteStream, setRemoteStream] = useState(null);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [meetingEnded, setMeetingEnded] = useState(false);
-   const [question, setquestion]= useState("")
+  const [question, setquestion] = useState("")
 
   const socket = useRef();
   const peerRef = useRef({});
@@ -130,7 +130,7 @@ export default function InterviewRoom() {
     };
   }, [stream]);
 
-  const questionadd=(question)=>{
+  const questionadd = (question) => {
     console.log(question)
     setquestion(question)
 
@@ -147,7 +147,7 @@ export default function InterviewRoom() {
       case 'chat':
         return <ChatPanel sessionId={sessionId} />;
       case 'ai':
-        return <AIPanel  AddQuestion={questionadd} sessionId={sessionId} />;
+        return <AIPanel AddQuestion={questionadd} sessionId={sessionId} />;
       default:
         return null;
     }
@@ -177,7 +177,7 @@ export default function InterviewRoom() {
           <VideoArea localvideo={stream} remotvideo={remoteStream} socket={socket} />
         </div>
         {activePanel && (
-          <div className="w-1/2 border-l border-gray-200 bg-white">
+          <div className="w-1/2 border-l border-gray-200 bg-white flex flex-col h-full overflow-hidden">
             {renderPanel()}
           </div>
         )}

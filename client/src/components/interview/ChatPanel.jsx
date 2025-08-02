@@ -32,7 +32,7 @@ export default function ChatPanel() {
 
     console.log('useeffct')
     const ydoc = new Y.Doc()
-    const provider = new WebsocketProvider('ws://localhost:5000/yjs', sessionId, ydoc)
+    const provider = new WebsocketProvider(import.meta.env.VITE_YJS_LINK, sessionId, ydoc)
     docArrayRef.current = ydoc.getArray('chat')
 
     const setaray = () => {

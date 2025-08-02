@@ -8,7 +8,8 @@ import db from './config/db.js';
 import { WebSocketServer } from 'ws';
 import { setupWSConnection } from 'y-websocket/bin/utils.js';
 import coderoute from './routes/CodeRoute.js'
-
+import cookieParser from 'cookie-parser';
+import dashinfo from '../server/routes/dashroutes.js'
 const app = express();
 const httpserver = createServer(app);
 const io = new Server(httpserver, {
@@ -18,16 +19,16 @@ const io = new Server(httpserver, {
     credentials: true,
   },
 });
-
+ 
 
 const wss = new WebSocketServer({ noServer: true })
 httpserver.on('upgrade', (req, socket, head) => {
   if (req.url.startsWith('/yjs')) {
-    console.log("ok edit back")
+  
     wss.handleUpgrade(req, socket, head, (ws) => {
       setupWSConnection(ws, req)
     })
-
+  console.log("ok edit back")
   }
 })
 
@@ -80,7 +81,7 @@ io.on('connection', (socket) => {
 
 db();
 
-const PORT = 5000 || process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
@@ -89,10 +90,11 @@ app.use(
     credentials: true,
   })
 );
-
+app.use(cookieParser())
 app.use(express.json());
 app.use('/api', authroute);
 app.use('/api',airoute)
+app.use("/api",dashinfo)
 app.use('/api',coderoute)
 app.get('/', (req, res) => {
   res.send('🚀 Hello from Express backend!');
@@ -101,3 +103,4 @@ app.get('/', (req, res) => {
 httpserver.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

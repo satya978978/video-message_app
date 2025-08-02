@@ -17,7 +17,7 @@ export default function RichTextEditor({ content, onChange, Question }) {
   const [ydoc] = useState(() => new Y.Doc())
  
   useEffect(() => {
-    const update = new WebsocketProvider("ws://localhost:5000/yjs", sessionId, ydoc)
+    const update = new WebsocketProvider(import.meta.env.VITE_YJS_LINK, sessionId, ydoc)
  console.log("ok edit")
     return () => {
       update.destroy()
@@ -25,22 +25,20 @@ export default function RichTextEditor({ content, onChange, Question }) {
     }
   }, [ydoc])
 
+const editor = useEditor({
+  extensions: [
+    StarterKit,
+    highlight,
+    underline,
+    Collaboration.configure({ document: ydoc }),
+  ],
+  content: content,
+  onUpdate: ({ editor }) => {
+    onChange(editor.getHTML());
+  },
+ 
+});
 
-  const editor = useEditor(
-
-    {
-      extensions: [
-        StarterKit,
-        highlight,
-        underline,
-        Collaboration.configure({ document: ydoc })
-
-      ],
-      content: content,
-      onUpdate: ({ editor }) => {
-        onChange(editor.getHTML());
-      },
-    });
 
   useEffect(() => {
 
@@ -54,8 +52,7 @@ export default function RichTextEditor({ content, onChange, Question }) {
 
 useEffect(() => {
   if (editor && aiQuestion) {
-    // Use insertText instead of insertContent for Yjs doc
-    editor.commands.insertText(aiQuestion + "\n");
+    editor.commands.setContent(aiQuestion + "\n");
     setaiQuestion("");
     console.log(`Inserted: ${aiQuestion}`);
   }

@@ -45,7 +45,7 @@ setGeneratedQuestions(JSON.parse(Q))
   };
 
   return (
-    <div className="h-[748px] flex flex-col bg-black text-white px-6 py-6 space-y-6">
+    <div className="flex-1 min-h-0 flex flex-col gap-4 bg-black text-white px-6 py-4">
       {/* Header */}
       <div className="flex items-center space-x-3">
         <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">

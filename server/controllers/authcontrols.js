@@ -6,14 +6,20 @@ export const registerUser = async (req, res) => {
     try {
         console.log("first")
         const { email, password, username } = req.body
-
+         console.log(email,password,username)
         if (await usermodel.findOne({ email })) {
             return res.status(400).json({ message: "User already exists" });
         }
 
         const user = new usermodel({ email, password, username })
         await user.save()
-
+        
+         const token = jwt.sign({email},process.env.JWT_SECRET)
+          res.cookie('token',token,{
+            httpOnly:true,
+            secure:false,
+            sameSite:'Lax'
+          })
         res.status(201).json({ message: 'ok' });
     }
     catch (err) {

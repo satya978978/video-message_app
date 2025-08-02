@@ -2,6 +2,10 @@ import { useRef, useEffect, useState } from 'react';
 import { Pen, Square, Circle, Eraser, Trash2, Download, Palette, Pointer } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { WebsocketProvider } from 'y-websocket';
+import fabricModule from 'fabric';
+import { fabric } from 'fabric';
+import { nanoid } from 'nanoid'
+
 import * as Y from 'yjs';
 
 
@@ -10,115 +14,110 @@ export default function DrawingCanvas() {
   const { sessionId } = useParams()
   const [Tool, setTool] = useState('pen')
   const [color, setcolor] = useState('#ffffff')
-  const toolRef= useRef(Tool)
-   useEffect(()=>{
-    toolRef.current=Tool
-   },[Tool])
+  const toolRef = useRef(null)
+  const fabricRefcanvas = useRef(null)
+  const path = useRef(null)
+  const deleted_paths = useRef(null)
 
   useEffect(() => {
 
     const ydoc = new Y.Doc()
-    const provider = new WebsocketProvider('ws://localhost:5000/yjs', sessionId, ydoc)
-    const path = ydoc.getArray('paths')
+    const provider = new WebsocketProvider(import.meta.env.VITE_YJS_LINK, sessionId, ydoc)
+    path.current = ydoc.getArray('paths')
+    deleted_paths.current = ydoc.getArray('deleted')
 
     const canvasEl = canvasRef.current;
     canvasEl.width = canvasEl.parentElement.clientWidth;
     canvasEl.height = canvasEl.parentElement.clientHeight;
-    const canvas = new fabric.Canvas(canvasEl)
-    if (toolRef.current === 'pen') {
-          canvas.isDrawingMode = true
+    fabricRefcanvas.current = new fabric.Canvas(canvasEl)
 
-      canvas.freeDrawingBrush.width = 3;
-    canvas.freeDrawingBrush.color = '#FFFFFF';
-
-    }
-    
-
-    canvas.on('path:created', (e) => {
+    fabricRefcanvas.current.on('path:created', (e) => {
       const pathdata = e.path.toObject()
-      path.push([pathdata])
+      const id = nanoid()
+     pathdata.id = id
+      e.path.id = id
+      path.current.push([pathdata])
     })
 
 
-    const path_array = path.toArray()
+    const path_array = path.current.toArray()
     fabric.util.enlivenObjects(path_array, (obj) => {
       obj.forEach(element => {
-        canvas.add(element)
+        fabricRefcanvas.current.add(element)
       });
-      canvas.renderAll()
+      fabricRefcanvas.current.renderAll()
     })
 
-    path.observe((event) => {
+    deleted_paths.current.observe((event) => {
+      event.changes.added.forEach((object) => {
+        const id = object.content.getContent()[0];
+        const objOfCanvas = fabricRefcanvas.current.getObjects()
+        const target = objOfCanvas.find((obj) => obj.id === id);
+        if (target) {
+          fabricRefcanvas.current.remove(target)
+          fabricRefcanvas.current.renderAll()
+
+        }
+
+      })
+    })
+
+    path.current.observe((event) => {
       event.changes.added.forEach((item) => {
         const data = item.content.getContent()[0]
         fabric.util.enlivenObjects([data], ([obj]) => {
-          canvas.add(obj)
-          canvas.renderAll()
+          fabricRefcanvas.current.add(obj)
+          fabricRefcanvas.current.renderAll()
 
         })
 
       })
 
     })
-    let isdown = false
-    let x = 0
-    let y = 0
-    let rect = null
-
-    canvas.on('mouse:down', (e) => {
-      if (toolRef.current !=='square') return
-      isdown = true
-      const pointer = canvas.getPointer(e.e)
-      x = pointer.x
-      y = pointer.y
-      rect = new fabric.Rect({
-        left: x,
-        top: y,
-        width:0,
-        height: 0,
-        stroke: color,
-        strokeWidth: 3,
-        fill: 'transparent'
-      })
-      canvas.add(rect)
-      path.push([rect])
-    })
-    canvas.on('mouse:move', (e) => {
-      if (toolRef.current !=='square') return
-      if (!isdown) return
-      const pointer = canvas.getPointer(e.e)
-     
-     rect.set({
-      left:Math.min(x,pointer.x),
-      top:Math.min(y,pointer.y),
-      width:Math.abs(pointer.x - x),
-      height:Math.abs(pointer.y-y)
-     })
-      canvas.renderAll();
-
-    })
-    canvas.on('mouse:up',()=>{
-      isdown = false
-    })
-
   }, [])
+  useEffect(() => {
+
+
+    if (Tool === 'pen') {
+      fabricRefcanvas.current.isDrawingMode = true
+      fabricRefcanvas.current.freeDrawingBrush.width = 3;
+      fabricRefcanvas.current.freeDrawingBrush.color = '#FFFFFF';
+    } else if (Tool === "pointer") {
+      fabricRefcanvas.current.off('selection:created')
+      fabricRefcanvas.current.isDrawingMode = false
+    } else if (Tool === "eraser") {
+      fabricRefcanvas.current.isDrawingMode = false
+      fabricRefcanvas.current.on('selection:created', (e) => {
+        const selected = e.selected[0]
+        deleted_paths.current.push([selected.id])
+        console.log(e)
+
+      });
+
+
+
+    }
+
+
+
+  }, [Tool])
+
+
 
 
   return (
     <div className="w-full focus:outline-none h-full flex flex-col">
       {/* Toolbar */}
       <div className="flex flex-wrap gap-1 mb-2 bg-gray-800 p-1 rounded items-center justify-center mt-4">
-        <button className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
-          <Pointer onClick={() => { setTool("pointer") }} className="w-4 h-4" />
+        <button onClick={() => { setTool("pointer") }} className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
+          <Pointer className="w-4 h-4" />
         </button>
-        <button className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
-          <Pen onClick={() => { setTool('pen') }} className="w-4 h-4" />
+        <button onClick={() => { toolRef.current = 'pen'; setTool("pen") }} className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
+          <Pen className="w-4 h-4" />
         </button>
-        <button className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
-          <Square onClick={() => { setTool("square") }} className="w-4 h-4" />
-        </button>
-        <button className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
-          <Eraser onClick={() => { setTool('eraser')}} className="w-4 h-4" />
+
+        <button onClick={() => { toolRef.current = 'eraser'; setTool("eraser") }} className="p-1 rounded transition bg-gray-600 text-white hover:bg-gray-700">
+          <Eraser className="w-4 h-4" />
         </button>
       </div>
 

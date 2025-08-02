@@ -13,6 +13,8 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+      include: ['fabric'], // Add this
+
     esbuildOptions: {
       define: {
         global: 'globalThis',

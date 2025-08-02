@@ -28,15 +28,10 @@ export default function CodePanel({ }) {
 
   const handleLanguageChange = (language) => {
     setSelectedLanguage(language);
-    console.log(setSelectedLanguage.id)
     setCode(language.defaultCode);
     setbacklanguage(language.id)
   };
-  const handleCodeChange = (e) => {
-    if (!isLocked) {
-      setCode(e.target.value);
-    }
-  };
+
 
   const copyCode = () => {
     navigator.clipboard.writeText(code);
@@ -60,7 +55,8 @@ export default function CodePanel({ }) {
   useEffect(() => {
     if (isMounted) {
       const ydoc = new Y.Doc()
-      const provider = new WebsocketProvider('ws://localhost:5000/yjs', sessionId, ydoc)
+      const provider = new WebsocketProvider(import.meta.env.VITE_YJS_LINK
+, sessionId, ydoc)
       const ytext = ydoc.getText('monaco')
                 console.log("Model: ", editorRef.current?.getModel());
 

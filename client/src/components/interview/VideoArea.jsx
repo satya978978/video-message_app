@@ -67,7 +67,7 @@ const myvid= useRef()
   };
 
   return (
-    <div className="h-full bg-black text-white relative overflow-hidden">
+    <div className="h-full bg-black  text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl floating-animation"></div>
@@ -92,22 +92,13 @@ const myvid= useRef()
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
-              <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">1 participant</span>
-            </div>
-            <button className="btn-secondary flex items-center space-x-2 text-sm">
-              <Settings className="w-4 h-4" />
-              <span>Settings</span>
-            </button>
-          </div>
+          
         </div>
       </div>
 
 
       {/* Video Area */}
-      <div className="relative z-10 flex-1 p-6">
+      <div className="relative  z-10 flex-1  p-6">
         {remotestream ? (
           // Two-participant layout
           <div className="grid grid-cols-2 gap-6 h-full">
