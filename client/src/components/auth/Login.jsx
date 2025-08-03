@@ -1,5 +1,5 @@
 
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2  } from 'lucide-react';
 import { useState } from 'react';
 import axios from './axios';
 import { useNavigate } from 'react-router-dom';
@@ -10,14 +10,21 @@ export default function LoginUI() {
   const navigate = useNavigate()
   const [password, setpassword] = useState("")
   const [email, setemail] = useState("")
-  
+  const [loading, setLoading] = useState(false);
   const submit = async (e) => {
-    e.preventDefault();
-    const res = await axios.post('/api/login', { password, email })
-    if (res.data.message == "ok") {
-      console.log("logged in ")
-      navigate('/dashboard')
+   e.preventDefault();
+  setLoading(true); 
+  try {
+    const res = await axios.post('/api/login', { password, email });
+    if (res.data.message === "ok") {
+      console.log("logged in ");
+      navigate('/dashboard');
     }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
   }
   return (
     <div className="min-h-screen flex bg-black text-white">
@@ -95,14 +102,27 @@ export default function LoginUI() {
             </div>
 
             {/* Sign In Button */}
-            <button 
-              className="group relative w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl font-semibold text-white transition-all duration-200 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <div className="flex items-center justify-center space-x-2">
-                <span>Sign in</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
-              </div>
-            </button>
+          <button
+  type="submit"
+  disabled={loading}
+  className={`group relative w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-200 shadow-lg 
+    ${loading 
+      ? "bg-blue-500 cursor-not-allowed opacity-70" 
+      : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98]"
+    }`}
+>
+  <div className="flex items-center justify-center space-x-2">
+    {loading ? (
+      <Loader2 className="w-5 h-5 animate-spin" /> // ⬅️ Spinner
+    ) : (
+      <>
+        <span>Sign in</span>
+        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
+      </>
+    )}
+  </div>
+</button>
+
 
             {/* Sign Up Link */}
             <div className="text-center">
